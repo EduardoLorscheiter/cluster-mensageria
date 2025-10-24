@@ -15,10 +15,9 @@ Para parar:
     net start RabbitMQ
 
 4️⃣ Acessar o painel
-URL: http://localhost:15672
-
-Usuário: guest
-Senha: guest
+    URL: http://localhost:15672
+    Usuário "padrão": guest
+    Senha "padrão": guest
 
 5️⃣ Verificar status
     rabbitmqctl status
