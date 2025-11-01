@@ -31,7 +31,7 @@ public class Consumer {
 
         // Escolha aleatória inicial de preferência do consumidor
         Random random = new Random();
-        // true => consome A; false => consome B
+        // True => consome A; False => consome B
         boolean prefersA = random.nextBoolean(); 
         String queue = prefersA ? RabbitMQQueues.QUEUE_PRODUCT_A : RabbitMQQueues.QUEUE_PRODUCT_B;
         // Tempo de consumo = 2x produção (3s)

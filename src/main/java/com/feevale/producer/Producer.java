@@ -39,7 +39,7 @@ public class Producer {
             boolean typeA = random.nextBoolean();
             String type = typeA ? "A" : "B";
             String queue = typeA ? RabbitMQQueues.QUEUE_PRODUCT_A : RabbitMQQueues.QUEUE_PRODUCT_B;
-            String message = String.format("{\"tipo\":\"%s\",\"produtor\":\"%s\",\"ts\":\"%s\"}",
+            String message = String.format("{\"produto\":\"%s\",\"produtor\":\"%s\",\"ts\":\"%s\"}",
                     type, name, Instant.now().toString());
 
             channel.basicPublish("", queue, null, message.getBytes(StandardCharsets.UTF_8));
