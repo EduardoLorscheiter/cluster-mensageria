@@ -12,7 +12,6 @@
 package com.feevale.consumer;
 
 import com.feevale.common.RabbitMQConfig;
-import com.feevale.common.RabbitMQQueues;
 import com.rabbitmq.client.*;
 
 import java.nio.charset.StandardCharsets;
@@ -26,14 +25,14 @@ public class Consumer {
 
         // Cria as filas se não existirem
         // Obs.: Filas duráveis não são necessárias para teste, seriam úteis se fosse desejada persistência
-        channel.queueDeclare(RabbitMQQueues.QUEUE_PRODUCT_A, false, false, false, null);
-        channel.queueDeclare(RabbitMQQueues.QUEUE_PRODUCT_B, false, false, false, null);
+        channel.queueDeclare(RabbitMQConfig.QUEUE_PRODUCT_A, false, false, false, null);
+        channel.queueDeclare(RabbitMQConfig.QUEUE_PRODUCT_B, false, false, false, null);
 
         // Escolha aleatória inicial de preferência do consumidor
         Random random = new Random();
         // True => consome A; False => consome B
         boolean prefersA = random.nextBoolean(); 
-        String queue = prefersA ? RabbitMQQueues.QUEUE_PRODUCT_A : RabbitMQQueues.QUEUE_PRODUCT_B;
+        String queue = prefersA ? RabbitMQConfig.QUEUE_PRODUCT_A : RabbitMQConfig.QUEUE_PRODUCT_B;
         // Tempo de consumo = 2x produção (3s)
         long consumptionTime = 6000;
 

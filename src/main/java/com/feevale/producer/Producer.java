@@ -12,7 +12,6 @@
 package com.feevale.producer;
 
 import com.feevale.common.RabbitMQConfig;
-import com.feevale.common.RabbitMQQueues;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 
@@ -28,8 +27,8 @@ public class Producer {
 
         // Cria as filas se não existirem
         // Obs.: Filas duráveis não são necessárias para teste, seriam úteis se fosse desejada persistência
-        channel.queueDeclare(RabbitMQQueues.QUEUE_PRODUCT_A, false, false, false, null);
-        channel.queueDeclare(RabbitMQQueues.QUEUE_PRODUCT_B, false, false, false, null);
+        channel.queueDeclare(RabbitMQConfig.QUEUE_PRODUCT_A, false, false, false, null);
+        channel.queueDeclare(RabbitMQConfig.QUEUE_PRODUCT_B, false, false, false, null);
 
         Random random = new Random();
         System.out.println(name + " iniciado. Enviando mensagens...");
@@ -38,7 +37,7 @@ public class Producer {
             // Escolhe o tipo do produto aleatoriamente
             boolean typeA = random.nextBoolean();
             String type = typeA ? "A" : "B";
-            String queue = typeA ? RabbitMQQueues.QUEUE_PRODUCT_A : RabbitMQQueues.QUEUE_PRODUCT_B;
+            String queue = typeA ? RabbitMQConfig.QUEUE_PRODUCT_A : RabbitMQConfig.QUEUE_PRODUCT_B;
             String message = String.format("{\"produto\":\"%s\",\"produtor\":\"%s\",\"ts\":\"%s\"}",
                     type, name, Instant.now().toString());
 

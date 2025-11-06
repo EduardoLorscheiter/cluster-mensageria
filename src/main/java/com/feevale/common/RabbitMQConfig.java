@@ -15,6 +15,10 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 public class RabbitMQConfig {
+    // Filas utilizadas no RabbitMQ
+    public static final String QUEUE_PRODUCT_A = "queue_product_A";
+    public static final String QUEUE_PRODUCT_B = "queue_product_B";
+
     // Dados para conexão com o RabbitMQ
     private static final String HOST = "localhost";
     private static final String USER = "guest";
