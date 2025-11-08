@@ -13,39 +13,41 @@ package com.feevale.producer;
 
 import com.feevale.common.RabbitMQConfig;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
 
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.Random;
 
 public class Producer {
     public static void main(String[] args) throws Exception {
         String name = args.length > 0 ? args[0] : "Produtor";
-        Connection connection = RabbitMQConfig.getConnection();
-        Channel channel = connection.createChannel();
-
-        // Cria as filas se não existirem
-        // Obs.: Filas duráveis não são necessárias para teste, seriam úteis se fosse desejada persistência
-        channel.queueDeclare(RabbitMQConfig.QUEUE_PRODUCT_A, false, false, false, null);
-        channel.queueDeclare(RabbitMQConfig.QUEUE_PRODUCT_B, false, false, false, null);
+        Channel channel = RabbitMQConfig.createChannel();
 
         Random random = new Random();
-        System.out.println(name + " iniciado. Enviando mensagens...");
+        System.out.println(name + " iniciado. Enviando produtos (mensagens) aleatoriamente...");
 
         while (true) {
             // Escolhe o tipo do produto aleatoriamente
             boolean typeA = random.nextBoolean();
             String type = typeA ? "A" : "B";
             String queue = typeA ? RabbitMQConfig.QUEUE_PRODUCT_A : RabbitMQConfig.QUEUE_PRODUCT_B;
-            String message = String.format("{\"produto\":\"%s\",\"produtor\":\"%s\",\"ts\":\"%s\"}",
-                    type, name, Instant.now().toString());
+
+            // Define o tempo de produção conforme o produto
+            // Produto A => 3000ms; Produto B => 4000ms
+            long productionTime = typeA ? 3000 : 4000;
+
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter
+                    .ofPattern("yyyy-MM-dd HH:mm:ss");
+            String timestamp = java.time.ZonedDateTime.now(java.time.ZoneId.systemDefault()).format(formatter);
+            
+            String message = String.format(
+                    "{\"produto\":\"%s\",\"%s\":%d,\"produtor\":\"%s\",\"ts\":\"%s\"}",
+                    type, RabbitMQConfig.PRODUCTION_TIME, productionTime, name, timestamp);
 
             channel.basicPublish("", queue, null, message.getBytes(StandardCharsets.UTF_8));
             System.out.println("[" + name + "] Enviado -> " + message);
 
-            // Aguarda o tempo de produção: 3s para qualquer tipo
-            Thread.sleep(3000);
+            // Aguarda o tempo de produção
+            Thread.sleep(productionTime);
         }
     }
 }
