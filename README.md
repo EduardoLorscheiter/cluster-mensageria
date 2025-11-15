@@ -45,35 +45,37 @@ Antes de qualquer comando, confirme a instalação e configuração do ambiente.
 - Seu projeto deve estar assim: 
 ```
 📂 cluster-mensageria/
-│
-├── 📂bat/
-│    └── 📄compile_and_run.bat
-│
-├── 📂 libs/
-│    ├── 📄amqp-client-5.27.0.jar
-│    ├── 📄netty-buffer-4.1.128.Final.jar
-│    ├── 📄netty-codec-4.1.128.Final.jar
-│    ├── 📄netty-common-4.1.128.Final.jar
-│    ├── 📄netty-handler-4.1.128.Final.jar
-│    ├── 📄netty-resolver-4.1.128.Final.jar
-│    ├── 📄netty-transport-4.1.128.Final.jar
-│    ├── 📄slf4j-api-2.0.17.jar
-│    └── 📄slf4j-simple-2.0.17.jar
-│
-└── 📂src/
-     └── 📂main/
-          └── 📂java/
-               └── 📂com/
-                    └── 📂feevale/
-                         ├── 📂common/
-                         │    ├── 📄RabbitMQConfig.class
-                         │    └── 📄RabbitMQConfig.java
-                         ├── 📂producer/
-                         │    ├── 📄Producer.class
-                         │    └── 📄Producer.java
-                         └── 📂consumer/
-                              ├── 📄Consumer.class
-                              └── 📄Consumer.java
+ │
+ ├── 📂 libs/
+ │    ├── 📄amqp-client-5.27.0.jar
+ │    ├── 📄netty-buffer-4.1.128.Final.jar
+ │    ├── 📄netty-codec-4.1.128.Final.jar
+ │    ├── 📄netty-common-4.1.128.Final.jar
+ │    ├── 📄netty-handler-4.1.128.Final.jar
+ │    ├── 📄netty-resolver-4.1.128.Final.jar
+ │    ├── 📄netty-transport-4.1.128.Final.jar
+ │    ├── 📄slf4j-api-2.0.17.jar
+ │    └── 📄slf4j-simple-2.0.17.jar
+ │
+ ├── 📂src/
+ │    └── 📂main/
+ │         └── 📂java/
+ │              └── 📂com/
+ │                   └── 📂feevale/
+ │                        ├── 📂common/
+ │                        │    └── 📄RabbitMQConfig.java
+ │                        ├── 📂producer/
+ │                        │    └── 📄Producer.java
+ │                        └── 📂consumer/
+ │                             └── 📄Consumer.java
+ │ 
+ ├── 📂target/
+ │
+ ├── 📄 .cspell.json
+ ├── 📄 docker-compose.yml
+ ├── 📄 Dockerfile
+ ├── 📄 pom.xml
+ └── 📄 README.md
 ```
 
 ## 🔧 2) Compile e Execute o Projeto
@@ -114,3 +116,4 @@ Antes de qualquer comando, confirme a instalação e configuração do ambiente.
     rabbitmqctl delete_queue queue_product_A
     rabbitmqctl delete_queue queue_product_B
     ```
+
