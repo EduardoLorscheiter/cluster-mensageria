@@ -1,0 +1,59 @@
+services:
+
+  rabbitmq:
+    image: rabbitmq:4.1.4-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "status"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  producer1:
+    build: .
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    command: ["java", "-cp", "classes:libs/*", "com.feevale.producer.Producer", "Produtor1"]
+
+  producer2:
+    build: .
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    command: ["java", "-cp", "classes:libs/*", "com.feevale.producer.Producer", "Produtor2"]
+
+  consumer1:
+    build: .
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    command: ["java", "-cp", "classes:libs/*", "com.feevale.consumer.Consumer", "Consumidor1"]
+
+  consumer2:
+    build: .
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    command: ["java", "-cp", "classes:libs/*", "com.feevale.consumer.Consumer", "Consumidor2"]
+
+  consumer3:
+    build: .
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    command: ["java", "-cp", "classes:libs/*", "com.feevale.consumer.Consumer", "Consumidor3"]
+
+  consumer4:
+    build: .
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    command: ["java", "-cp", "classes:libs/*", "com.feevale.consumer.Consumer", "Consumidor4"]

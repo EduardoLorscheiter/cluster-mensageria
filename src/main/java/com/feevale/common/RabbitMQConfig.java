@@ -24,23 +24,28 @@ public class RabbitMQConfig {
     public static final String PRODUCTION_TIME = "tempo_producao";
 
     // Dados para conexão com o RabbitMQ
-    private static final String HOST = "localhost";
+    private static final String HOST = "rabbitmq";
     private static final String USER = "guest";
     private static final String PASS = "guest";
+
+    // Conexão única entre todos os canais do RabbitMQ
+    private static Connection connection;
 
     /**
      * Cria uma conexão e um canal com as filas já configuradas no RabbitMQ
      */
     public static Channel createChannel() throws Exception {
+        // Se ainda não houver conexão, cria uma nova
+        if (connection == null || !connection.isOpen()) {
+            connection = createConnection();
+        }
+        
         // Cria o canal com a conexão com o RabbitMQ
-        Connection connection = createConnection();
         Channel channel = connection.createChannel();
 
         // Cria as filas se não existirem
-        // Obs.1: Filas duráveis não são necessárias para teste
-        // Obs.2: Seriam úteis se fosse desejada persistência
-        channel.queueDeclare(QUEUE_PRODUCT_A, false, false, false, null);
-        channel.queueDeclare(QUEUE_PRODUCT_B, false, false, false, null);
+        channel.queueDeclare(QUEUE_PRODUCT_A, true, false, false, null);
+        channel.queueDeclare(QUEUE_PRODUCT_B, true, false, false, null);
 
         return channel;
     }

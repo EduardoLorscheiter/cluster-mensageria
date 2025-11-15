@@ -12,9 +12,13 @@
 package com.feevale.producer;
 
 import com.feevale.common.RabbitMQConfig;
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
 public class Producer {
@@ -35,15 +39,19 @@ public class Producer {
             // Produto A => 3000ms; Produto B => 4000ms
             long productionTime = typeA ? 3000 : 4000;
 
-            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter
-                    .ofPattern("yyyy-MM-dd HH:mm:ss");
-            String timestamp = java.time.ZonedDateTime.now(java.time.ZoneId.systemDefault()).format(formatter);
-            
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String timestamp = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo")).format(formatter);
+
             String message = String.format(
                     "{\"produto\":\"%s\",\"%s\":%d,\"produtor\":\"%s\",\"ts\":\"%s\"}",
                     type, RabbitMQConfig.PRODUCTION_TIME, productionTime, name, timestamp);
 
-            channel.basicPublish("", queue, null, message.getBytes(StandardCharsets.UTF_8));
+            AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
+                    .deliveryMode(2) // 2 = persistente
+                    .contentType("application/json")
+                    .build();
+
+            channel.basicPublish("", queue, props, message.getBytes(StandardCharsets.UTF_8));
             System.out.println("[" + name + "] Enviado -> " + message);
 
             // Aguarda o tempo de produção
