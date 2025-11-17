@@ -1,48 +1,29 @@
-# 🧩 Projeto: Sistema Produtor-Consumidor com RabbitMQ
+# 🧩 Projeto: Sistema Produtor-Consumidor com RabbitMQ (Docker)
 
 ## 🎯 OBJETIVO
-Executar localmente um sistema simples de **Produtores e Consumidores em Java**, que se comunicam via **RabbitMQ**, simulando o consumo de produtos **A** e **B**.
+Executar, via **Docker**, um sistema de **Produtores e Consumidores em Java** que trocam mensagens usando **RabbitMQ**, simulando o processamento de produtos **A** e **B**, cada um com tempos distintos de produção e consumo.
 
 ---
 
 ## ⚙️ 1) Pré-requisitos
 
-Antes de qualquer comando, confirme a instalação e configuração do ambiente.
-### 🧠 1. Java JDK (versão 20 recomendada)
+Antes de executar o projeto, você precisa ter instalado o **Docker**:
+### 🔗 Download oficial: https://www.docker.com/products/docker-desktop/
+### ✔️ Docker
 - Verifique a instalação:
   ```bash
-  java -version
-  javac -version
+  docker --version
   ```
-- Se aparecer algo como java version "20.x", ótimo.
-- Se aparecer 1.8.0_…, você ainda está com o Java 8 - instale o JDK 20.
-- Depois atualize o PATH para o novo Java.
-<br>
-
-### 🐇 2. RabbitMQ e Erlang
-- Instale **RabbitMQ** e o **Erlang** localmente.
-- Verifique se o **RabbitMQ** está rodando:
+### ✔️ Docker Compose
+- Verifique a instalação:
   ```bash
-  rabbitmqctl status
+  docker compose version
   ```
-- Se o **RabbitMQ** não estiver rodando, execute:
-  ```bash
-  rabbitmq-server
-  ```
-- Após tudo Ok, abra o **Painel de Gerenciamento**:
-  > - http://localhost:15672/
-  > - Usuário padrão: guest
-  > - Senha padrão: guest
-- Se o painel abrir, o servidor RabbitMQ está rodando corretamente.
+- Se ambos responderem a versão, você está pronto.
 <br>
 
-### 📁 3. Projeto Baixado
-- Baixe o projeto "cluster-mensageria" do GitHub.
-  > ⚠️ **Grave o local onde ele foi baixado! É importante para execução!**
-<br>
-
-### 📦 4. Estrutura de Pastas
-- Seu projeto deve estar assim: 
+## 📦 2) Estrutura do Projeto
+- Seu repositório deve parecer com isto: 
 ```
 📂 cluster-mensageria/
  │
@@ -68,8 +49,6 @@ Antes de qualquer comando, confirme a instalação e configuração do ambiente.
  │                        │    └── 📄Producer.java
  │                        └── 📂consumer/
  │                             └── 📄Consumer.java
- │ 
- ├── 📂target/
  │
  ├── 📄 .cspell.json
  ├── 📄 docker-compose.yml
@@ -77,43 +56,96 @@ Antes de qualquer comando, confirme a instalação e configuração do ambiente.
  ├── 📄 pom.xml
  └── 📄 README.md
 ```
+- O **`Dockerfile`** é responsável por compilar o código Java, e o **`docker-compose.yml`** sobe:
+  - 1 instância do **RabbitMQ**
+  - 2 **Produtores**
+  - 4 **Consumidores**
+- Todos rodando **automaticamente** e conectados na mesma rede **Docker**.
+<br>
 
-## 🔧 2) Compile e Execute o Projeto
-- Ajuste as configurações **(Host, Usuário e Senha)** do seu **RabbitMQ** no arquivo **`RabbitMQConfig.java`**.
-- Dentro do projeto **`cluster-mensageria`** haverá uma pasta **`bat`**:
-  - Abra o arquivo **`compile_and_run.bat`** e altere o valor de **`BASE_DIR`** para o local onde você baixou o projeto. Salve o arquivo **`.BAT`**.
-  - Após alterado, abra o **`CMD`**, entre na pasta **`bat`** do projeto e execute:
-    - **`compile_and_run.bat`**
-    - Isso vai regerar os arquivos **`.class`** nas pastas dos aquivos **`.java`** do projeto.
-    - Se não aparecer nenhum erro nem mensagem, está tudo certo (Java é silencioso ao compilar com sucesso).
-    - Nesse caso, a execução seguirá automaticamente:
-      - Serão abertas várias janelas CMD - **2 produtores + 4 consumidores**, simulando o cenário descrito.
-      - É possível monitorar as filas também no painel do **RabbitMQ**.
+## ▶️ 3) Como Executar
+- **1º:** Abra um terminal (CMD) dentro do projeto. Algo como:
+  ```bash
+  C:\Projects\GitProjects\cluster-mensageria
+  ```
+- **2º:** Suba todo o ambiente:
+  ```bash
+  docker compose up --build
+  ```
+- Também é possível visualizar os logs de cada container individualmente:
+  - Em algum terminal (CMD) dentro do projeto, execute:
+    - **Produtor 1:**
+      ```bash
+      docker logs -f cluster-mensageria-producer1-1
+      ```
+    - **Produtor 2:**
+      ```bash
+      docker logs -f cluster-mensageria-producer2-1
+      ```
+    - **Consumidor 1:**
+      ```bash
+      docker logs -f cluster-mensageria-consumer1-1
+      ```
+    - **Consumidor 2:**
+      ```bash
+      docker logs -f cluster-mensageria-consumer2-1
+      ```
+    - **Consumidor 3:**
+      ```bash
+      docker logs -f cluster-mensageria-consumer3-1
+      ```
+    - **Consumidor 4:**
+      ```bash
+      docker logs -f cluster-mensageria-consumer4-1
+      ```
+<br>
 
-## 🧠 3) O que Esperar ao Executar
-- Cada **Produtor** vai:
-  - Enviar mensagens para uma fila (**`queue_product_A`** ou **`queue_product_B`**).
-  - Imprimir mensagens como:
-    - ... 
-- Cada **Consumidor** vai:
-  - Escolher aleatoriamente uma fila para consumir.
-  - Imprimir mensagens como:
-    - ... 
+## 📊 4) Acessando o Painel do RabbitMQ
+- O **RabbitMQ** sobe com a versão **management** configurada dentro do **`docker-compose.yml`**, permitindo acessar o painel:
+  > - 👉 http://localhost:15672/
+  > - Usuário: guest
+  > - Senha: guest
+- No painel você pode monitorar:
+  - Filas (**`queue_product_A`** e **`queue_product_B`**)
+  - Entradas dos produtores
+  - Consumo realizado pelos consumidores
+  - Mensagens pendentes, taxas, gráficos, etc.
+<br>
 
-## 🚀 4) Encerrando
-- Para parar toda a execução: **feche as janelas de produtores e consumidores CMD**.
-- Elimine as filas do **RabbitMQ**:
-  - Para consultar as filas do **RabbitMQ**:
-    ```bash
-    rabbitmqctl list_queues
-    ```
-  - Para deletar uma fila específica:
-    ```bash
-    rabbitmqctl delete_queue NOME_DA_FILA
-    ```
-    **Exemplo:**
-    ```bash
-    rabbitmqctl delete_queue queue_product_A
-    rabbitmqctl delete_queue queue_product_B
-    ```
+## 🧠 5) Como o Sistema Funciona (basicamente)
+- **Produtores**:
+  - Escolhem aleatoriamente um produto:
+    - Produto **A** → tempo **3000ms**
+    - Produto **B** → tempo **4000ms**
+  - Publicam na fila correspondente:
+    - **`queue_product_A`**
+    - **`queue_product_B`**
+- **Consumidores**:
+  - A cada iteração, escolhem aleatoriamente uma fila para tentar consumir.
+  - Ao receber uma mensagem:
+    - Extraem o campo **"tempo_producao"**.
+    - Consomem com tempo = **2x** o original.
+    - Confirmam o processamento via **`basicAck`**.
+<br>
 
+## 🛑 6) Encerrando o Sistema
+- Para desligar tudo:
+  ```bash
+  docker compose down
+  ```
+  - Isso para todos os **produtores**, **consumidores** e o **RabbitMQ**.
+- Se quiser remover as filas do **RabbitMQ** (opcional), use o painel ou:
+  ```bash
+  docker exec -it rabbitmq rabbitmqctl delete_queue queue_product_A
+  docker exec -it rabbitmq rabbitmqctl delete_queue queue_product_B
+  ```
+<br>
+
+## 🧹 7) Limpar Imagens (opcional)
+  ```bash
+  docker system prune -a
+  ```
+<br>
+
+## 🚀 8) Pronto!
+- Você tem agora um sistema **Produtor–Consumidor** totalmente automatizado via Docker, sem precisar instalar **Java** localmente e sem instalar **RabbitMQ** manualmente.
