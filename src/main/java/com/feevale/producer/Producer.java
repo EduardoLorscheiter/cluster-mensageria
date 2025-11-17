@@ -20,6 +20,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Producer {
     public static void main(String[] args) throws Exception {
@@ -29,11 +30,28 @@ public class Producer {
         Random random = new Random();
         System.out.println(name + " iniciado. Enviando produtos (mensagens) aleatoriamente...");
 
+        AtomicInteger counter = new AtomicInteger(0);
+
+        String prefix;
+
+        if (name.equalsIgnoreCase("Produtor1")) {
+            prefix = "P1";
+        } else if (name.equalsIgnoreCase("Produtor2")) {
+            prefix = "P2";
+        } else {
+            // fallback caso apareça outro nome inesperado
+            prefix = name.replace(" ", "");
+        }
+
         while (true) {
             // Escolhe o tipo do produto aleatoriamente
             boolean typeA = random.nextBoolean();
             String type = typeA ? "A" : "B";
             String queue = typeA ? RabbitMQConfig.QUEUE_PRODUCT_A : RabbitMQConfig.QUEUE_PRODUCT_B;
+
+            // Geração de ID único baseado no produtor
+            int idNumber = counter.incrementAndGet();
+            String id = prefix + "-" + idNumber + "ID";
 
             // Define o tempo de produção conforme o produto
             // Produto A => 3000ms; Produto B => 4000ms
@@ -43,8 +61,8 @@ public class Producer {
             String timestamp = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo")).format(formatter);
 
             String message = String.format(
-                    "{\"produto\":\"%s\",\"%s\":%d,\"produtor\":\"%s\",\"ts\":\"%s\"}",
-                    type, RabbitMQConfig.PRODUCTION_TIME, productionTime, name, timestamp);
+                    "{\"id\":\"%s\",\"produto\":\"%s\",\"%s\":%d,\"produtor\":\"%s\",\"ts\":\"%s\"}",
+                    id, type, RabbitMQConfig.PRODUCTION_TIME, productionTime, name, timestamp);
 
             AMQP.BasicProperties props = new AMQP.BasicProperties.Builder()
                     .deliveryMode(2) // 2 = persistente

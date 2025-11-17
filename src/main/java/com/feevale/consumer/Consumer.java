@@ -37,25 +37,40 @@ public class Consumer {
 
             if (response != null) {
                 String message = new String(response.getBody(), StandardCharsets.UTF_8);
-                System.out.printf("[%s] Recebido da fila %s: %s%n", name, queue, message);
+
+                String id = extractId(message);
+                System.out.printf("[%s] Recebido mensagem da fila %s: %s%n", name, queue, message);
 
                 // Extrai o tempo original da mensagem (usando regex simples)
                 long originalTime = extractTime(message);
                 long consumptionTime = originalTime * 2;
 
-                System.out.printf("[%s] Consumindo mensagem por %d ms...%n", name, consumptionTime);
+                System.out.printf("[%s] Consumindo mensagem (ID=%s) por %d ms...%n", name, id, consumptionTime);
+
                 try {
                     Thread.sleep(consumptionTime);
                 } catch (InterruptedException ignored) {}
 
                 // Confirma que a mensagem foi processada
                 channel.basicAck(response.getEnvelope().getDeliveryTag(), false);
-                System.out.printf("[%s] Finalizou consumo de uma mensagem.%n", name);
+                System.out.printf("[%s] Finalizou consumo de uma mensagem (ID=%s).%n", name, id);
             } else {
                 // Se não houver mensagem, aguarda um pouco antes de tentar novamente
                 Thread.sleep(500);
             }
         }
+    }
+
+    /**
+     * Extrai o ID
+     * 
+     * @param message Mensagem recebida contendo o campo "id"
+     * @return Retorna o valor do ID extraído ou "SEM_ID" caso não seja encontrado
+     */
+    private static String extractId(String message) {
+        Pattern pattern = Pattern.compile("\"id\":\"([^\"]+)\"");
+        Matcher matcher = pattern.matcher(message);
+        return matcher.find() ? matcher.group(1) : "SEM_ID";
     }
 
     /**
