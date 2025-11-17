@@ -23,42 +23,37 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Producer {
+    // Tempos de produção para cada tipo de produto
+    private static final int PRODUCTION_TIME_A = 3000;
+    private static final int PRODUCTION_TIME_B = 4000;
+
+    // Formato de data e hora para o timestamp
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    // Gerador de números aleatórios
+    private static final Random RANDOM = new Random();
+
     public static void main(String[] args) throws Exception {
         String name = args.length > 0 ? args[0] : "Produtor";
         Channel channel = RabbitMQConfig.createChannel();
 
-        Random random = new Random();
-        System.out.println(name + " iniciado. Enviando produtos (mensagens) aleatoriamente...");
-
         AtomicInteger counter = new AtomicInteger(0);
 
-        String prefix;
-
-        if (name.equalsIgnoreCase("Produtor1")) {
-            prefix = "P1";
-        } else if (name.equalsIgnoreCase("Produtor2")) {
-            prefix = "P2";
-        } else {
-            // fallback caso apareça outro nome inesperado
-            prefix = name.replace(" ", "");
-        }
+        System.out.println(name + " iniciado. Enviando produtos (mensagens) aleatoriamente...");
 
         while (true) {
             // Escolhe o tipo do produto aleatoriamente
-            boolean typeA = random.nextBoolean();
+            boolean typeA = RANDOM.nextBoolean();
             String type = typeA ? "A" : "B";
             String queue = typeA ? RabbitMQConfig.QUEUE_PRODUCT_A : RabbitMQConfig.QUEUE_PRODUCT_B;
 
-            // Geração de ID único baseado no produtor
-            int idNumber = counter.incrementAndGet();
-            String id = prefix + "-" + idNumber + "ID";
+            // Gera um ID único baseado no produtor
+            String id = getPrefix(name) + "-" + counter.incrementAndGet() + "ID";
 
             // Define o tempo de produção conforme o produto
-            // Produto A => 3000ms; Produto B => 4000ms
-            long productionTime = typeA ? 3000 : 4000;
+            long productionTime = typeA ? PRODUCTION_TIME_A : PRODUCTION_TIME_B;
 
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            String timestamp = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo")).format(formatter);
+            String timestamp = ZonedDateTime.now(ZoneId.of("America/Sao_Paulo")).format(FORMATTER);
 
             String message = String.format(
                     "{\"id\":\"%s\",\"produto\":\"%s\",\"%s\":%d,\"produtor\":\"%s\",\"ts\":\"%s\"}",
@@ -75,5 +70,21 @@ public class Producer {
             // Aguarda o tempo de produção
             Thread.sleep(productionTime);
         }
+    }
+
+    /**
+     * Extrai o ID
+     * 
+     * @param name Nome do produtor
+     * @return Prefixo para o ID da mensagem
+     */
+    private static String getPrefix(String name) {
+        if (name.equalsIgnoreCase("Produtor1")) {
+            return "P1";
+        } else if (name.equalsIgnoreCase("Produtor2")) {
+            return "P2";
+        }
+        // Fallback caso apareça um nome inesperado
+        return name.replace(" ", "");
     }
 }

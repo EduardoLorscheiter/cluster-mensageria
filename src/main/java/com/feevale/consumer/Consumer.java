@@ -20,16 +20,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Consumer {
+    // Gerador de números aleatórios
+    private static final Random RANDOM = new Random();
+
     public static void main(String[] args) throws Exception {
         String name = args.length > 0 ? args[0] : "Consumidor";
         Channel channel = RabbitMQConfig.createChannel();
 
-        Random random = new Random();
         System.out.println(name + " iniciado. Consumindo produtos (mensagens) aleatoriamente...");
 
         while (true) {
             // Escolhe aleatoriamente a fila A ou B a cada iteração
-            boolean pickA = random.nextBoolean();
+            boolean pickA = RANDOM.nextBoolean();
             String queue = pickA ? RabbitMQConfig.QUEUE_PRODUCT_A : RabbitMQConfig.QUEUE_PRODUCT_B;
 
             // Tenta obter uma mensagem da fila escolhida
@@ -38,6 +40,7 @@ public class Consumer {
             if (response != null) {
                 String message = new String(response.getBody(), StandardCharsets.UTF_8);
 
+                // Extrai o ID da mensagem (usando regex simples)
                 String id = extractId(message);
                 System.out.printf("[%s] Recebido mensagem da fila %s: %s%n", name, queue, message);
 
@@ -64,8 +67,8 @@ public class Consumer {
     /**
      * Extrai o ID
      * 
-     * @param message Mensagem recebida contendo o campo "id"
-     * @return Retorna o valor do ID extraído ou "SEM_ID" caso não seja encontrado
+     * @param message Mensagem recebida
+     * @return ID extraído ou "SEM_ID" caso não seja encontrado
      */
     private static String extractId(String message) {
         Pattern pattern = Pattern.compile("\"id\":\"([^\"]+)\"");
